@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+
+    <style>
+        body {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        textarea {
+            width: 70%;
+            font-size: 17px;
+        }
+
+        @media (max-width:700px) {
+            textarea {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Typing Speed Test</h1>
+
+    <select name="timer" id="timer" onchange="timerChanged()">
+        <option value="1">1 Minute</option>
+        <option value="2">2 Minute</option>
+        <option value="3">3 Minute</option>
+        <option value="4">4 Minute</option>
+        <option value="5">5 Minute</option>
+        <option value="10">10 Minute</option>
+    </select>
+
+    <p>Remaining Time :- <span id="timeRemaining"></span> Sec</p>
+
+    <p>Your Typing Speed is :- <span id="typingSpeed">0</span> w/m</p>
+
+    <textarea id="text" cols="30" rows="10" onkeyup="addtext()"
+        placeholder="Start typing timer will auto start."></textarea>
+    <br>
+    <div>
+        <button onclick="resetTimer()">Reset</button>
+        <button onclick="stopTimer()" id="stopbtn" disabled>Stop</button>
+    </div>
+
+
+    <script>
+
+        let typingStartTime = null
+        var timeoutfun = null
+        let text = document.getElementById("text").value
+        let timer = document.getElementById("timer").value
+        let timerinterval = null
+        let remainingTime = timer * 60
+        document.getElementById("timeRemaining").innerText = remainingTime
+
+        function timerChanged() {
+            timer = document.getElementById("timer").value
+            remainingTime = timer * 60
+            document.getElementById("timeRemaining").innerText = remainingTime
+        }
+
+        function addtext() {
+            text = document.getElementById("text").value
+            document.getElementById("stopbtn").removeAttribute("disabled")
+            document.getElementById("timer").setAttribute("disabled", true)
+            if (typingStartTime == null) {
+                typingStartTime = Date.parse(new Date())
+            }
+            if (timeoutfun == null) {
+                timerinterval = setInterval(() => {
+                    document.getElementById("typingSpeed").innerText = Math.floor((text.length / 5) / timer)
+                    remainingTime--
+                    if (remainingTime == 0) {
+                        clearInterval(timerinterval)
+                    }
+                    document.getElementById("timeRemaining").innerText = remainingTime
+
+                }, 1000);
+                timeoutfun = setTimeout(() => {
+                    document.getElementById("typingSpeed").innerText = Math.floor((text.length / 5) / timer)
+                    document.getElementById("timer").removeAttribute("disabled")
+                    document.getElementById("text").setAttribute("disabled", true)
+                    document.getElementById("stopbtn").setAttribute("disabled", true)
+                }, timer * 60000);
+            }
+        }
+
+        function stopTimer() {
+            clearTimeout(timeoutfun)
+            clearInterval(timerinterval)
+            timeoutfun = null
+            remainingTime = 0
+            document.getElementById("typingSpeed").innerText = Math.floor((text.length / 5) / ((Date.parse(new Date()) - typingStartTime) / 60000))
+            document.getElementById("timeRemaining").innerText = remainingTime
+            document.getElementById("text").setAttribute("disabled", true)
+            document.getElementById("stopbtn").setAttribute("disabled", true)
+            document.getElementById("timer").removeAttribute("disabled")
+            typingStartTime = null
+        }
+
+        function resetTimer() {
+            remainingTime = timer * 60
+            document.getElementById("typingSpeed").innerText = 0
+            document.getElementById("timeRemaining").innerText = remainingTime
+            clearTimeout(timeoutfun)
+            clearInterval(timerinterval)
+            timeoutfun = null
+            typingStartTime = null
+            document.getElementById("text").value = ''
+            document.getElementById("stopbtn").removeAttribute("disabled")
+            document.getElementById("timer").removeAttribute("disabled")
+            document.getElementById("text").removeAttribute("disabled")
+        }
+
+    </script>
+</body>
+
+</html>
